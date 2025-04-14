@@ -1,5 +1,3 @@
-// main.dart
-
 import 'package:flutter/material.dart';
 import 'screens/selection_screen.dart';
 
@@ -17,4 +15,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-//cherry
