@@ -1,9 +1,16 @@
+// lib/screens/quiz_screen.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/question.dart';
 import '../services/api_service.dart';
 
 class QuizScreen extends StatefulWidget {
+  final String category;
+  final String difficulty;
+
+  const QuizScreen({Key? key, required this.category, required this.difficulty}) : super(key: key);
+
   @override
   _QuizScreenState createState() => _QuizScreenState();
 }
@@ -18,7 +25,7 @@ class _QuizScreenState extends State<QuizScreen> {
   String _feedbackText = "";
   
   Timer? _timer;
-  int _timeRemaining = 10; // seconds per question
+  int _timeRemaining = 10;
 
   @override
   void initState() {
@@ -34,7 +41,10 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Future<void> _loadQuestions() async {
     try {
-      final questions = await ApiService.fetchQuestions();
+      final questions = await ApiService.fetchQuestions(
+        category: widget.category,
+        difficulty: widget.difficulty,
+      );
       setState(() {
         _questions = questions;
         _loading = false;
@@ -47,7 +57,6 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _startTimer() {
-    // Reset timer for the current question
     _timeRemaining = 10;
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -58,7 +67,6 @@ class _QuizScreenState extends State<QuizScreen> {
       } else {
         _timer?.cancel();
         if (!_answered) {
-          // If time is up and user hasn't answered, auto-show feedback.
           setState(() {
             _answered = true;
             _feedbackText = "Time's up! The correct answer is ${_questions[_currentQuestionIndex].correctAnswer}.";
@@ -73,7 +81,6 @@ class _QuizScreenState extends State<QuizScreen> {
     setState(() {
       _answered = true;
       _selectedAnswer = selectedAnswer;
-
       final correctAnswer = _questions[_currentQuestionIndex].correctAnswer;
       if (selectedAnswer == correctAnswer) {
         _score++;
@@ -127,7 +134,6 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: Text('Quiz App'),
         actions: [
-          // Display timer countdown in the AppBar
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(child: Text("Time: $_timeRemaining")),
@@ -139,27 +145,16 @@ class _QuizScreenState extends State<QuizScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Question ${_currentQuestionIndex + 1}/${_questions.length}',
-              style: TextStyle(fontSize: 20),
-            ),
+            Text('Question ${_currentQuestionIndex + 1}/${_questions.length}', style: TextStyle(fontSize: 20)),
             SizedBox(height: 16),
-            Text(
-              question.question,
-              style: TextStyle(fontSize: 18),
-            ),
+            Text(question.question, style: TextStyle(fontSize: 18)),
             SizedBox(height: 16),
             ...question.options.map((option) => _buildOptionButton(option)),
             SizedBox(height: 20),
             if (_answered)
               Text(
                 _feedbackText,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: _selectedAnswer == question.correctAnswer
-                      ? Colors.green
-                      : Colors.red,
-                ),
+                style: TextStyle(fontSize: 16, color: _selectedAnswer == question.correctAnswer ? Colors.green : Colors.red),
               ),
             if (_answered)
               ElevatedButton(
@@ -172,4 +167,3 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 }
-//sharu
