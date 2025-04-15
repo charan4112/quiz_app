@@ -53,7 +53,9 @@ class _SelectionScreenState extends State<SelectionScreen> {
               items: difficulties.map((difficulty) {
                 return DropdownMenuItem<String>(
                   value: difficulty,
-                  child: Text(difficulty[0].toUpperCase() + difficulty.substring(1)),
+                  child: Text(
+                    difficulty[0].toUpperCase() + difficulty.substring(1),
+                  ),
                 );
               }).toList(),
               onChanged: (value) {

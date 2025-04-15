@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/question.dart';
 import '../services/api_service.dart';
 
@@ -9,7 +10,8 @@ class QuizScreen extends StatefulWidget {
   final String category;
   final String difficulty;
 
-  const QuizScreen({Key? key, required this.category, required this.difficulty}) : super(key: key);
+  const QuizScreen({Key? key, required this.category, required this.difficulty})
+      : super(key: key);
 
   @override
   _QuizScreenState createState() => _QuizScreenState();
@@ -25,7 +27,7 @@ class _QuizScreenState extends State<QuizScreen> {
   String _feedbackText = "";
   
   Timer? _timer;
-  int _timeRemaining = 10;
+  int _timeRemaining = 10; // seconds per question
 
   @override
   void initState() {
@@ -56,6 +58,23 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
+  Future<void> _saveQuizResult() async {
+    final result = {
+      'score': _score,
+      'total': _questions.length,
+      'category': widget.category,
+      'difficulty': widget.difficulty,
+      'timestamp': DateTime.now().toIso8601String(),
+    };
+
+    try {
+      await FirebaseFirestore.instance.collection('quiz_results').add(result);
+      print("Quiz result saved successfully.");
+    } catch (e) {
+      print("Error saving quiz result: $e");
+    }
+  }
+
   void _startTimer() {
     _timeRemaining = 10;
     _timer?.cancel();
@@ -69,7 +88,8 @@ class _QuizScreenState extends State<QuizScreen> {
         if (!_answered) {
           setState(() {
             _answered = true;
-            _feedbackText = "Time's up! The correct answer is ${_questions[_currentQuestionIndex].correctAnswer}.";
+            _feedbackText =
+                "Time's up! The correct answer is ${_questions[_currentQuestionIndex].correctAnswer}.";
           });
         }
       }
@@ -101,6 +121,8 @@ class _QuizScreenState extends State<QuizScreen> {
     });
     if (_currentQuestionIndex < _questions.length) {
       _startTimer();
+    } else {
+      _saveQuizResult();
     }
   }
 
@@ -145,16 +167,27 @@ class _QuizScreenState extends State<QuizScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Question ${_currentQuestionIndex + 1}/${_questions.length}', style: TextStyle(fontSize: 20)),
+            Text(
+              'Question ${_currentQuestionIndex + 1}/${_questions.length}',
+              style: TextStyle(fontSize: 20),
+            ),
             SizedBox(height: 16),
-            Text(question.question, style: TextStyle(fontSize: 18)),
+            Text(
+              question.question,
+              style: TextStyle(fontSize: 18),
+            ),
             SizedBox(height: 16),
             ...question.options.map((option) => _buildOptionButton(option)),
             SizedBox(height: 20),
             if (_answered)
               Text(
                 _feedbackText,
-                style: TextStyle(fontSize: 16, color: _selectedAnswer == question.correctAnswer ? Colors.green : Colors.red),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: _selectedAnswer == question.correctAnswer
+                      ? Colors.green
+                      : Colors.red,
+                ),
               ),
             if (_answered)
               ElevatedButton(

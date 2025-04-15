@@ -11,13 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-
-  # Use firebase_core version compatible with cloud_firestore version below.
   firebase_core: ^2.0.0
-  # Upgraded cloud_firestore to a version that works with firebase_core ^2.0.0.
   cloud_firestore: ^4.17.5
-  
-  # HTTP package to fetch data from the API
   http: ^0.13.4
 
 dev_dependencies:
