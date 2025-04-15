@@ -9,14 +9,14 @@ class SelectionScreen extends StatefulWidget {
 }
 
 class _SelectionScreenState extends State<SelectionScreen> {
-  String selectedCategory = "9"; // Default category: General Knowledge
+  String selectedCategory = "9"; // Default: General Knowledge
   String selectedDifficulty = "easy"; // Default difficulty
 
   final List<Map<String, String>> categories = [
     {"id": "9", "name": "General Knowledge"},
     {"id": "10", "name": "Entertainment: Books"},
     {"id": "11", "name": "Entertainment: Film"},
-    // Add more categories as needed.
+    // Add more categories here if needed.
   ];
 
   final List<String> difficulties = ["easy", "medium", "hard"];
@@ -54,8 +54,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                 return DropdownMenuItem<String>(
                   value: difficulty,
                   child: Text(
-                    difficulty[0].toUpperCase() + difficulty.substring(1),
-                  ),
+                      difficulty[0].toUpperCase() + difficulty.substring(1)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -69,7 +68,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
             SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                // Navigate to the QuizScreen passing the selected options.
+                // Navigate to QuizScreen with selected options.
                 Navigator.push(
                   context,
                   MaterialPageRoute(
